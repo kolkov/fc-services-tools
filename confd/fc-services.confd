@@ -1,0 +1,17 @@
+# Configuration for fc-services-tools
+# Location: /etc/conf.d/fc-services
+
+# Directory to monitor for binary changes
+WATCH_DIR="/opt/fc-services"
+
+# Service name pattern (regex)
+SERVICE_PATTERN="^fc-"
+
+# Log file for binary monitor
+MONITOR_LOG="/var/log/fc-bin-monitor.log"
+
+# Log file for dependency restarts
+RESTART_LOG="/var/log/fc-restarts.log"
+
+# Default options for fc-restart-deps
+RESTART_OPTS=""

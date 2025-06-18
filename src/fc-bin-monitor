@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Load configuration
+source /etc/conf.d/fc-services
+
+# Set defaults if not configured
+: ${WATCH_DIR:="/opt/fc-services"}
+: ${SERVICE_PATTERN:="^fc-"}
+: ${MONITOR_LOG:="/var/log/fc-bin-monitor.log"}
+: ${RESTART_LOG:="/var/log/fc-restarts.log"}
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$MONITOR_LOG"
+}
+
+log "Starting binary monitor in $WATCH_DIR for pattern: $SERVICE_PATTERN"
+
+inotifywait -m -q -e close_write --format "%f" "$WATCH_DIR" | while read -r FILE
+do
+    if [[ "$FILE" =~ $SERVICE_PATTERN ]]; then
+        SERVICE_NAME="${FILE}"
+        INIT_SCRIPT="/etc/init.d/${SERVICE_NAME}"
+
+        if [ ! -x "$INIT_SCRIPT" ]; then
+            log "Init script not found: $INIT_SCRIPT"
+            continue
+        fi
+        
+        log "Detected change: $FILE → Restarting service"
+        
+        # Restart service and dependencies
+        fc-restart-deps $RESTART_OPTS "$SERVICE_NAME" 2>&1 | tee -a "$RESTART_LOG"
+        
+        log "Processing completed for $SERVICE_NAME"
+    fi
+done

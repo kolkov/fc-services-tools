@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Load configuration
+source /etc/conf.d/fc-services 2>/dev/null
+
+# Set default pattern if not configured
+: ${SERVICE_PATTERN:="^fc-"}
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Get services matching pattern
+services=$(rc-status default | awk -v pattern="$SERVICE_PATTERN" '
+    $0 ~ /Runlevel:/ {print; next}
+    $1 ~ pattern {print}
+')
+
+echo "$services" | while IFS= read -r line; do
+    # Highlight runlevel header
+    if [[ "$line" =~ ^Runlevel: ]]; then
+        echo -e "${CYAN}$line${NC}"
+        continue
+    fi
+    
+    # Skip empty lines
+    if [[ -z "$line" ]]; then
+        echo
+        continue
+    fi
+    
+    # Extract service name
+    service=$(echo "$line" | awk '{print $1}')
+    
+    # Determine status and color
+    if [[ "$line" =~ \[[[:space:]]+started ]]; then
+        status="started"
+        color="$GREEN"
+    elif [[ "$line" =~ \[[[:space:]]+stopped ]]; then
+        status="stopped"
+        color="$RED"
+    elif [[ "$line" =~ \[[[:space:]]+crashed ]]; then
+        status="crashed"
+        color="$RED"
+    elif [[ "$line" =~ \[[[:space:]]+starting ]]; then
+        status="starting"
+        color="$YELLOW"
+    elif [[ "$line" =~ \[[[:space:]]+stopping ]]; then
+        status="stopping"
+        color="$YELLOW"
+    else
+        status="unknown"
+        color="$NC"
+    fi
+    
+    # Rebuild the line with colored status
+    if [[ "$line" =~ (.*)(\[[[:space:]]+)([a-z]+)(.*)(\].*) ]]; then

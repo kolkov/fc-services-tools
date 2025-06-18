@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>your@email.com</email>
+    <name>Your Name</name>
+  </maintainer>
+  <longdescription>
+    Tools for managing fc-* services in Gentoo OpenRC, including:
+    - Dependency-aware service restart
+    - Binary change monitoring
+    - Colored status display
+    - Management aliases
+  </longdescription>
+  <upstream>
+    <remote-id type="github">yourusername/fc-services-tools</remote-id>
+  </upstream>
+</pkgmetadata>

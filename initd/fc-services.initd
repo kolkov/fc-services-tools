@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+
+name="fc-bin-monitor"
+description="Monitor binary changes and restart services"
+command="/usr/bin/fc-bin-monitor"
+command_background=true
+pidfile="/var/run/fc-bin-monitor.pid"
+command_args=""
+command_user="root"
+
+# Load configuration
+conf="/etc/conf.d/${RC_SVCNAME}"
+[ -f "${conf}" ] && source "${conf}"
+
+depend() {
+    need localmount net
+    after sshd
+}
